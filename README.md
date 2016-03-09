@@ -10,10 +10,9 @@ A [Docker](https://www.docker.com/) [image](https://registry.hub.docker.com/u/ws
 ## Run
 Create and run a container named orcl:
 ```
-$ docker run --privileged -dP --name orcl wscherphof/oracle-12c
+$ docker run --shm-size=4g -d -p 1521:1521 -p 8080:8080 -p 5500:5500 --name orcl oracle-12c
 989f1b41b1f00c53576ab85e773b60f2458a75c108c12d4ac3d70be4e801b563
 ```
-Yes, alas, this has to run `privileged` in order to gain permission for the `mount` statement in `/tmp/start` that ups the amount of shared memory, which has a hard value of 64M in Docker; see this [GitHub issue](https://github.com/docker/docker/pull/4981)
 
 ## Connect
 The default password for the `sys` user is `change_on_install`, and for `system` it's `manager`
@@ -130,11 +129,12 @@ Should you want to modify & build your own image:
 
 3) `cd` to the `oracle-12c` repo directory
 
-4) `$ docker build -t oracle-12c:step1 step1`
+4) `$ docker build -t oracle-12c --shm-size=4g .`
+	This will build everything you need. (Takes about 20m)
+	Below you can see some of the important steps, if these fails 
+	try again and if multiple tries fail, send an email.
 
-5) `$ docker run --privileged -ti --name step1 oracle-12c:step1 /bin/bash`
-
-6) ` # /tmp/install/install` (takes about 5m)
+  ` # /tmp/install/install` (takes about 5m)
 ```
 Tue Sep 16 08:48:00 UTC 2014
 Starting Oracle Universal Installer...
@@ -160,18 +160,7 @@ As install user, execute the following script to complete the configuration.
 	2. This script needs a small password properties file for configuration assistants that require passwords (refer to install guide documentation).
 
 ```
-7) ` <enter>`
-
-8) ` # exit` (the scripts mentioned are executed as part of the step2 build)
-
-9) `$ docker commit step1 oracle-12c:installed`
-
-#### Step 2
-1) `$ docker build -t oracle-12c:step2 step2`
-
-2) `$ docker run --privileged -ti --name step2 oracle-12c:step2 /bin/bash`
-
-3) ` # /tmp/create` (takes about 15m)
+  ` # /tmp/create` (takes about 15m)
 ```
 Tue Sep 16 11:07:30 UTC 2014
 Creating database...
@@ -218,12 +207,6 @@ Running pupbld.sql...
 Tue Sep 16 11:19:38 UTC 2014
 Create is done; commit the container now
 ```
-4) ` # exit`
-
-5) `$ docker commit step2 oracle-12c:created`
-
-#### Step 3
-1) `$ docker build -t oracle-12c step3`
 
 ## License
 [GNU Lesser General Public License (LGPL)](http://www.gnu.org/licenses/lgpl-3.0.txt) for the contents of this GitHub repo; for Oracle's database software, see their [Licensing Information](http://docs.oracle.com/database/121/DBLIC/toc.htm)
