@@ -10,7 +10,7 @@ A [Docker](https://www.docker.com/) [image](https://registry.hub.docker.com/u/ws
 ## Run
 Create and run a container named orcl:
 ```
-$ docker run --shm-size=4g -d -p 1521:1521 -p 8080:8080 -p 5500:5500 --name orcl oracle-12c
+$ docker run --shm-size=4g -d -v <folder where you want to place database>:/u01/app/oracle/oradata/ORCL/ -p 1521:1521 -p 8080:8080 -p 5500:5500 --name orcl oracle-12c
 989f1b41b1f00c53576ab85e773b60f2458a75c108c12d4ac3d70be4e801b563
 ```
 

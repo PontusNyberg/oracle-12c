@@ -1,15 +1,20 @@
 #!/bin/bash
 
-mount -t tmpfs shmfs -o size=4g /dev/shm
+# First thing we want to do is to check if our database files exists.
+# if not move them from /tmp/ to the shared folder.
+#if [ ! -s /u01/app/oracle/oradata/ORCL/apps01.dbf ] && [ ! -s /u01/app/oracle/oradata/ORCL/indx01.dbf ]
+#	then
+#    mv /tmp/ORCL/* /u01/app/oracle/oradata/ORCL/
+#fi
 
 while true; do
   status=`ps -ef | grep tns | grep oracle`
   pmon=`ps -ef | egrep pmon_$ORACLE_SID'\>' | grep -v grep`
   if [ "$status" == "" ] || [ "$pmon" == "" ]
   then
-    su -s /bin/bash oracle -c "lsnrctl start"
-    su -s /bin/bash oracle -c "sqlplus /nolog @?/config/scripts/startdb.sql"
-    su -s /bin/bash oracle -c "lsnrctl status"
+    lsnrctl start
+    sqlplus /nolog @?/config/scripts/startdb.sql
+    lsnrctl status
   fi
   sleep 1m
 done;
