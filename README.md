@@ -7,19 +7,21 @@ A [Docker](https://www.docker.com/) [image](https://registry.hub.docker.com/u/ws
 2. Start "Docker Quickstart Terminal" to create the default VirtualBox (docker-machine).
 3. This image is rather large so we will need to enlarge the VirtualBox disc and then enlarge the partition for the busybox. Make sure your box is turned off.
   You can turn the box off by starting VirtualBox and choose turn off.<br/>
-  3.1 Clone the .vmdk image to a .vdi.<br/>
+
+3.1 Clone the .vmdk image to a .vdi.<br/>
       `$ vboxmanage clonehd "default.vmdk" "default.vdi" --format vdi`<br/>
-  3.2 Resize the new .vdi image (50000 ~ 50 GB).<br/>
+3.2 Resize the new .vdi image (50000 ~ 50 GB).<br/>
       `$ vboxmanage modifyhd "default.vdi" --resize 50000`<br/>
-  3.3 Optional; switch back to a .vmdk.<br/>
+3.3 Optional; switch back to a .vmdk.<br/>
       `$ VBoxManage clonehd "default.vdi" "resized.vmdk" --format vmdk`<br/>
-  3.4 Start Virtualbox and choose your box and choose settings -> storage -> default.vmdk -> the icon next to hard-disk -> Choose virtual hard-disk file -> default.vdi or resized.vmdk.<br/>
-  3.5 Download the gparted iso from http://gparted.sourceforge.net/download.php<br/>
-  3.6 Go to the settings for the Virtualbox like above and choose storage -> boot2docker.iso and click the icon next to Optical Drive -> Choose Virtual Optical Disk Drive -> gparted.iso<br/>
-  3.7 Start the default box in VirtualBox and it will boot on the gparted disc, choose GParted Live and then when it have loaded press enter 3 times so the program starts.<br/>
-  3.8 Choose /dev/sda1 and click "Resize/Move" and drag the bar until it fills all the space and click "Resize/Move" then "Apply".<br/>
-  3.9 In the VirtualBox window right click on the default box and choose close and "Power off the machine".<br/>
-  3.10 Go back into settings and go to storage and change back to the boot2docker.iso, it is located in "C:\Program Files\Docker Toolbox\boot2docker.iso" or where you choose to install it.<br/>
+3.4 Start Virtualbox and choose your box and choose settings -> storage -> default.vmdk -> the icon next to hard-disk -> Choose virtual hard-disk file -> default.vdi or resized.vmdk.<br/>
+3.5 Download the gparted iso from http://gparted.sourceforge.net/download.php<br/>
+3.6 Go to the settings for the Virtualbox like above and choose storage -> boot2docker.iso and click the icon next to Optical Drive -> Choose Virtual Optical Disk Drive -> gparted.iso<br/>
+3.7 Start the default box in VirtualBox and it will boot on the gparted disc, choose GParted Live and then when it have loaded press enter 3 times so the program starts.<br/>
+3.8 Choose /dev/sda1 and click "Resize/Move" and drag the bar until it fills all the space and click "Resize/Move" then "Apply".<br/>
+3.9 In the VirtualBox window right click on the default box and choose close and "Power off the machine".<br/>
+3.10 Go back into settings and go to storage and change back to the boot2docker.iso, it is located in "C:\Program Files\Docker Toolbox\boot2docker.iso" or where you choose to install it.<br/>
+
 4. Time to let the image build.<br/>
      `$ docker build -t oracle-12c --shm-size=4g .`<br/>
   	This will build everything you need. (Takes about 20m)<br/>
