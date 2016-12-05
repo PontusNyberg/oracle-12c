@@ -2,10 +2,29 @@
 A [Docker](https://www.docker.com/) [image](https://registry.hub.docker.com/u/wscherphof/oracle-12c/) with [Oracle Database 12c Enterprise Edition Release 12.1.0.2.0](http://www.oracle.com/technetwork/database/enterprise-edition/overview/index.html) running in [Oracle Linux 7](http://www.oracle.com/us/technologies/linux/overview/index.html)
 - Default ORCL database on port 1521
 
-## Install
-1. [Install Docker](https://docs.docker.com/installation/#installation)
-1. `$ docker pull wscherphof/oracle-12c`
-2. That worked once, but the image was removed by Docker Support on Oracle's request, so you'll need to [build](https://github.com/wscherphof/oracle-12c#build) it yourself
+## Build
+1. [Install Docker-Toolbox](https://www.docker.com/products/docker-toolbox)
+2. Start "Docker Quickstart Terminal" to create the default VirtualBox (docker-machine).
+2. This image is rather large so we will need to enlarge the VirtualBox disc and then enlarge the partition for the busybox. Make sure your box is turned off.
+  You can turn the box off by starting VirtualBox and choose turn off.
+  2.1 Clone the .vmdk image to a .vdi.
+      `$ vboxmanage clonehd "default.vmdk" "default.vdi" --format vdi`
+  2.2 Resize the new .vdi image (50000 ~ 50 GB).
+      `$ vboxmanage modifyhd "default.vdi" --resize 50000`
+  2.3 Optional; switch back to a .vmdk.
+      `$ VBoxManage clonehd "default.vdi" "resized.vmdk" --format vmdk`
+  2.4 Start Virtualbox and choose your box and choose settings -> storage -> default.vmdk -> the icon next to hard-disk -> Choose virtual hard-disk file -> default.vdi or resized.vmdk.
+  2.5 Download the gparted iso from http://gparted.sourceforge.net/download.php
+  2.6 Go to the settings for the Virtualbox like above and choose storage -> boot2docker.iso and click the icon next to Optical Drive -> Choose Virtual Optical Disk Drive -> gparted.iso
+  2.7 Start the default box in VirtualBox and it will boot on the gparted disc, choose GParted Live and then when it have loaded press enter 3 times so the program starts.
+  2.8 Choose /dev/sda1 and click "Resize/Move" and drag the bar until it fills all the space and click "Resize/Move" then "Apply".
+  2.9 In the VirtualBox window right click on the default box and choose close and "Power off the machine".
+  2.10 Go back into settings and go to storage and change back to the boot2docker.iso, it is located in "C:\Program Files\Docker Toolbox\boot2docker.iso" or where you choose to install it.
+4. Time to let the image build.
+     `$ docker build -t oracle-12c --shm-size=4g .`
+  	This will build everything you need. (Takes about 20m)
+  	Below you can see some of the important steps, if these fails
+  	try again and if multiple tries fail, send an email.
 
 ## Run
 Create and run a container named orcl:
@@ -19,9 +38,9 @@ The default password for the `sys` user is `change_on_install`, and for `system`
 The `ORCL` database port `1521` is bound to the Docker host through `run -P`. To find the host's port:
 ```
 $ docker port orcl 1521
-0.0.0.0:49189
+0.0.0.0:1521
 ```
-So from the host, you can connect with `system/manager@localhost:49189/orcl`
+So from the host, you can connect with `system/manager@localhost:1521/orcl`
 Though if using [Boot2Docker](https://github.com/boot2docker/boot2docker), you need the actual ip address instead of `localhost`:
 ```
 $ boot2docker ip
@@ -119,95 +138,6 @@ The command completed successfully
 ## Enter
 There's no ssh daemon or similar configured in the image. If you need a command prompt inside the container, consider [nsenter](https://github.com/jpetazzo/nsenter) (and mind the [Boot2Docker note](https://github.com/jpetazzo/nsenter#docker-enter-with-boot2docker) there)
 or just go for 'docker exec -ti orcl bash', this will get you into terminal on the box.
-
-## Build
-Should you want to modify & build your own image:
-
-#### Step 1
-1) Download `linuxamd64_12102_database_1of2.zip` & `linuxamd64_12102_database_2of2.zip` from [Oracle Tech Net](http://www.oracle.com/technetwork/database/enterprise-edition/downloads/database12c-linux-download-2240591.html)
-
-2) Put the 2 zip files in the `step1` directory
-
-3) `cd` to the `oracle-12c` repo directory
-
-4) `$ docker build -t oracle-12c --shm-size=4g .`
-	This will build everything you need. (Takes about 20m)
-	Below you can see some of the important steps, if these fails 
-	try again and if multiple tries fail, send an email.
-
-  ` # /tmp/install/install` (takes about 5m)
-```
-Tue Sep 16 08:48:00 UTC 2014
-Starting Oracle Universal Installer...
-
-Checking Temp space: must be greater than 500 MB.   Actual 40142 MB    Passed
-Checking swap space: must be greater than 150 MB.   Actual 1392 MB    Passed
-Preparing to launch Oracle Universal Installer from /tmp/OraInstall2014-09-16_08-48-01AM. Please wait ...[root@51905aa48207 /]# You can find the log of this install session at:
- /u01/app/oraInventory/logs/installActions2014-09-16_08-48-01AM.log
-The installation of Oracle Database 12c was successful.
-Please check '/u01/app/oraInventory/logs/silentInstall2014-09-16_08-48-01AM.log' for more details.
-
-As a root user, execute the following script(s):
-	1. /u01/app/oracle/product/12.1.0/dbhome_1/root.sh
-
-
-
-Successfully Setup Software.
-As install user, execute the following script to complete the configuration.
-	1. /u01/app/oracle/product/12.1.0/dbhome_1/cfgtoollogs/configToolAllCommands RESPONSE_FILE=<response_file>
-
- 	Note:
-	1. This script must be run on the same host from where installer was run. 
-	2. This script needs a small password properties file for configuration assistants that require passwords (refer to install guide documentation).
-
-```
-  ` # /tmp/create` (takes about 15m)
-```
-Tue Sep 16 11:07:30 UTC 2014
-Creating database...
-
-SQL*Plus: Release 12.1.0.2.0 Production on Tue Sep 16 11:07:30 2014
-
-Copyright (c) 1982, 2014, Oracle.  All rights reserved.
-
-Connected to an idle instance.
-
-File created.
-
-ORACLE instance started.
-
-Total System Global Area 1073741824 bytes
-Fixed Size		    2932632 bytes
-Variable Size		  721420392 bytes
-Database Buffers	  343932928 bytes
-Redo Buffers		    5455872 bytes
-
-Database created.
-
-
-Tablespace created.
-
-
-Tablespace created.
-
-Disconnected from Oracle Database 12c Enterprise Edition Release 12.1.0.2.0 - 64bit Production
-With the Partitioning, OLAP, Advanced Analytics and Real Application Testing options
-
-Tue Sep 16 11:07:50 UTC 2014
-Creating password file...
-
-Tue Sep 16 11:07:50 UTC 2014
-Running catalog.sql...
-
-Tue Sep 16 11:08:51 UTC 2014
-Running catproc.sql...
-
-Tue Sep 16 11:19:38 UTC 2014
-Running pupbld.sql...
-
-Tue Sep 16 11:19:38 UTC 2014
-Create is done; commit the container now
-```
 
 ## License
 [GNU Lesser General Public License (LGPL)](http://www.gnu.org/licenses/lgpl-3.0.txt) for the contents of this GitHub repo; for Oracle's database software, see their [Licensing Information](http://docs.oracle.com/database/121/DBLIC/toc.htm)

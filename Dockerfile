@@ -66,17 +66,10 @@ RUN rm /tmp/create
 
 ### Step 3 ###
 # Exposes the default TNS port, as well as the Enterprise Manager Express HTTP
-# (8080) and HTTPS (5500) ports. 
+# (8080) and HTTPS (5500) ports.
 EXPOSE 1521 5500 8080
 
 USER oracle
-# Move created database to keep the files when the volume is created
-# We will move them to the shared folder when the box is started (see the script 'start')
-#WORKDIR /u01/app/oracle/oradata/ORCL/
-#RUN mkdir /tmp/ORCL
-#RUN mv /u01/app/oracle/oradata/ORCL/* /tmp/ORCL/
-#VOLUME /u01/app/oracle/oradata/ORCL
-
 ADD step3/startdb.sql $ORACLE_HOME/config/scripts/startdb.sql
 ADD step3/start /tmp/start
 CMD /tmp/start
